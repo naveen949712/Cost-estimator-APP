@@ -1,0 +1,312 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@using System.Globalization
+@using System.IO
+@using CsvHelper
+@using CsvHelper.Configuration
+@using ClosedXML.Excel
+@using Cost_Estimator_App.Models
+@using Cost_Estimator_App.Services
+@inject AzurePricingService PricingService
+
+<PageTitle>Cost Estimator App</PageTitle>
+
+<div class="container-fluid mt-3">
+    <h3 class="mb-3">Cost Estimator App</h3>
+
+    <!-- Controls Row -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <div class="row g-3">
+                <!-- 1. File Upload (.csv and .xlsx) -->
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">1. Upload Inventory (.csv / .xlsx)</label>
+                    <InputFile OnChange="HandleFileSelected" class="form-control" accept=".csv, .xlsx" />
+                    <small class="text-muted">Headers: VmName, SkuName, Region, OS, Quantity</small>
+                </div>
+
+                <!-- 2. Processor Toggle -->
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">2. Processor Preference</label>
+                    <select class="form-select" @bind="selectedProcessor">
+                        <option value="Any">Original (As in File)</option>
+                        <option value="Intel">Prefer Intel</option>
+                        <option value="AMD">Prefer AMD</option>
+                    </select>
+                </div>
+
+                <!-- 3. Azure Hybrid Benefit -->
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">3. Hybrid Benefit (AHB)</label>
+                    <div class="form-check form-switch mt-2">
+                        <input class="form-check-input" type="checkbox" id="ahbSwitch" @bind="enableAhb">
+                        <label class="form-check-label" for="ahbSwitch">Apply AHB for Windows</label>
+                    </div>
+                </div>
+
+                <!-- 4. Pricing View Selection -->
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">4. Cost View</label>
+                    <select class="form-select" @bind="selectedPricingModel">
+                        <option value="All">Compare All (PAYG vs 1-Yr vs 3-Yr)</option>
+                        <option value="PAYG">Pay-As-You-Go Only</option>
+                        <option value="1Yr">1-Year Reserved Only</option>
+                        <option value="3Yr">3-Year Reserved Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <button class="btn btn-primary" @onclick="RunEstimation" disabled="@(isLoading || rawItems.Count == 0)">
+                    @if (isLoading)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                        <span>Calculating...</span>
+                    }
+                    else
+                    {
+                        <span>Calculate Estimate</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Messages -->
+    @if (!string.IsNullOrEmpty(statusMessage))
+    {
+        <div class="alert @(statusMessage.StartsWith("Error") ? "alert-danger" : "alert-info")">
+            @statusMessage
+        </div>
+    }
+
+    <!-- Summary Cards -->
+    @if (results.Count > 0)
+    {
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-light border-primary p-3">
+                    <h6>Total PAYG (Monthly)</h6>
+                    <h3 class="text-primary">$@totalPayg.ToString("N2")</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light border-success p-3">
+                    <h6>Total 1-Year Reserved (Monthly)</h6>
+                    <h3 class="text-success">$@total1Yr.ToString("N2")</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light border-warning p-3">
+                    <h6>Total 3-Year Reserved (Monthly)</h6>
+                    <h3 class="text-warning">$@total3Yr.ToString("N2")</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breakdown Table -->
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>VM / Hostname</th>
+                    <th>SKU Name</th>
+                    <th>Region</th>
+                    <th>Detected OS</th>
+                    <th>Qty</th>
+                    @if (selectedPricingModel == "All" || selectedPricingModel == "PAYG")
+                    {
+                        <th>PAYG / Mo</th>
+                    }
+                    @if (selectedPricingModel == "All" || selectedPricingModel == "1Yr")
+                    {
+                        <th>1-Yr RI / Mo</th>
+                    }
+                    @if (selectedPricingModel == "All" || selectedPricingModel == "3Yr")
+                    {
+                        <th>3-Yr RI / Mo</th>
+                    }
+                    @if (selectedPricingModel == "All")
+                    {
+                        <th>3-Yr Savings</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in results)
+                {
+                    <tr>
+                        <td>@row.VmName</td>
+                        <td><code>@row.SkuName</code></td>
+                        <td>@row.Region</td>
+                        <td>
+                            <span class="badge @(row.DetectedOs == "Windows" ? "bg-primary" : "bg-secondary")">
+                                @row.DetectedOs
+                            </span>
+                        </td>
+                        <td>@row.Quantity</td>
+                        @if (selectedPricingModel == "All" || selectedPricingModel == "PAYG")
+                        {
+                            <td>$@row.PaygMonthly.ToString("N2")</td>
+                        }
+                        @if (selectedPricingModel == "All" || selectedPricingModel == "1Yr")
+                        {
+                            <td>$@row.Reserved1YrMonthly.ToString("N2")</td>
+                        }
+                        @if (selectedPricingModel == "All" || selectedPricingModel == "3Yr")
+                        {
+                            <td>$@row.Reserved3YrMonthly.ToString("N2")</td>
+                        }
+                        @if (selectedPricingModel == "All")
+                        {
+                            <td><span class="text-success fw-bold">@row.Savings3YrPercent%</span></td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private string selectedProcessor = "Any";
+    private bool enableAhb = false;
+    private string selectedPricingModel = "All";
+    private bool isLoading = false;
+    private string statusMessage = "";
+
+    private List<InventoryItem> rawItems = new();
+    private List<CostEstimateResult> results = new();
+
+    private decimal totalPayg => results.Sum(r => r.PaygMonthly);
+    private decimal total1Yr => results.Sum(r => r.Reserved1YrMonthly);
+    private decimal total3Yr => results.Sum(r => r.Reserved3YrMonthly);
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            rawItems.Clear();
+            results.Clear();
+
+            var file = e.File;
+            var extension = Path.GetExtension(file.Name).ToLowerInvariant();
+
+            // Load file into a memory stream asynchronously to prevent synchronous read errors
+            using var memoryStream = new MemoryStream();
+            await file.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024).CopyToAsync(memoryStream);
+            memoryStream.Position = 0;
+
+            if (extension == ".csv")
+            {
+                ParseCsv(memoryStream);
+            }
+            else if (extension == ".xlsx")
+            {
+                ParseExcel(memoryStream);
+            }
+            else
+            {
+                statusMessage = "Error: Unsupported file format. Please upload a .csv or .xlsx file.";
+                return;
+            }
+
+            statusMessage = $"Successfully loaded {rawItems.Count} items from {file.Name}. Ready to calculate.";
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Error parsing file: {ex.Message}";
+        }
+    }
+
+    private void ParseCsv(Stream stream)
+    {
+        using var reader = new StreamReader(stream);
+        using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
+        {
+            HeaderValidated = null,
+            MissingFieldFound = null
+        });
+
+        var records = csv.GetRecords<dynamic>().ToList();
+        foreach (var rec in records)
+        {
+            var dict = (IDictionary<string, object>)rec;
+            rawItems.Add(new InventoryItem
+            {
+                VmName = dict.ContainsKey("VmName") ? dict["VmName"]?.ToString() ?? "" : "",
+                SkuName = dict.ContainsKey("SkuName") ? dict["SkuName"]?.ToString() ?? "" : "",
+                Region = dict.ContainsKey("Region") ? dict["Region"]?.ToString() ?? "eastus" : "eastus",
+                RawOs = dict.ContainsKey("OS") ? dict["OS"]?.ToString() ?? "Linux" : "Linux",
+                Quantity = dict.ContainsKey("Quantity") && int.TryParse(dict["Quantity"]?.ToString(), out int q) ? q : 1
+            });
+        }
+    }
+
+    private void ParseExcel(Stream stream)
+    {
+        using var workbook = new XLWorkbook(stream);
+        var worksheet = workbook.Worksheets.FirstOrDefault();
+
+        if (worksheet == null)
+        {
+            statusMessage = "Error: The uploaded Excel workbook contains no sheets.";
+            return;
+        }
+
+        var firstRow = worksheet.FirstRowUsed();
+        if (firstRow == null) return;
+
+        // Map column headers dynamically
+        var headerMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        foreach (var cell in firstRow.CellsUsed())
+        {
+            headerMap[cell.GetString().Trim()] = cell.Address.ColumnNumber;
+        }
+
+        string GetCellValue(IXLRow row, string header)
+        {
+            if (headerMap.TryGetValue(header, out int colIndex))
+            {
+                return row.Cell(colIndex).GetString().Trim();
+            }
+            return string.Empty;
+        }
+
+        var rows = worksheet.RowsUsed().Skip(1);
+        foreach (var row in rows)
+        {
+            string sku = GetCellValue(row, "SkuName");
+            if (string.IsNullOrWhiteSpace(sku)) continue;
+
+            string vmName = GetCellValue(row, "VmName");
+            string region = GetCellValue(row, "Region");
+            string os = GetCellValue(row, "OS");
+            string qtyStr = GetCellValue(row, "Quantity");
+
+            rawItems.Add(new InventoryItem
+            {
+                VmName = string.IsNullOrWhiteSpace(vmName) ? sku : vmName,
+                SkuName = sku,
+                Region = string.IsNullOrWhiteSpace(region) ? "eastus" : region,
+                RawOs = string.IsNullOrWhiteSpace(os) ? "Linux" : os,
+                Quantity = int.TryParse(qtyStr, out int q) && q > 0 ? q : 1
+            });
+        }
+    }
+
+    private async Task RunEstimation()
+    {
+        isLoading = true;
+        statusMessage = "Fetching pricing from Azure API...";
+        results.Clear();
+
+        foreach (var item in rawItems)
+        {
+            var res = await PricingService.CalculateItemCostAsync(item, selectedProcessor, enableAhb);
+            results.Add(res);
+        }
+
+        isLoading = false;
+        statusMessage = $"Completed estimates for {results.Count} items.";
+    }
+}
