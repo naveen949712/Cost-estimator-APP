@@ -1,0 +1,126 @@
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{7D7BBAE8-C9D2-8000-C445-B2E2CE17EC37}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <NoStandardLibraries>false</NoStandardLibraries>
+    <AssemblyName>ConsoleApplication</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>Estimator_App__Azure_resources</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="appsettings.Development.json" />
+    <None Include="appsettings.json" />
+    <None Include="Components\App.razor" />
+    <None Include="Components\Layout\MainLayout.razor" />
+    <None Include="Components\Layout\NavMenu.razor" />
+    <None Include="Components\Layout\ReconnectModal.razor" />
+    <None Include="Components\Pages\Counter.razor" />
+    <None Include="Components\Pages\Error.razor" />
+    <None Include="Components\Pages\Home.razor" />
+    <None Include="Components\Pages\NotFound.razor" />
+    <None Include="Components\Pages\Weather.razor" />
+    <None Include="Components\Routes.razor" />
+    <None Include="Components\_Imports.razor" />
+    <None Include="Properties\launchSettings.json" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.min.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.js.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Models\AzurePriceModel.cs" />
+    <Compile Include="Models\InventoryItem.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Services\AzureDiscoveryService.cs" />
+    <Compile Include="Services\AzurePricingService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Components\Layout\MainLayout.razor.css" />
+    <Content Include="Components\Layout\NavMenu.razor.css" />
+    <Content Include="Components\Layout\ReconnectModal.razor.css" />
+    <Content Include="Components\Layout\ReconnectModal.razor.js" />
+    <Content Include="wwwroot\app.css" />
+    <Content Include="wwwroot\favicon.png" />
+    <Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css" />
+    <Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css" />
+    <Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css" />
+    <Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css" />
+    <Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css" />
+    <Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css" />
+    <Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css" />
+    <Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css" />
+    <Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css" />
+    <Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css" />
+    <Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css" />
+    <Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css" />
+    <Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap.css" />
+    <Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap.min.css" />
+    <Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css" />
+    <Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css" />
+    <Content Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js" />
+    <Content Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js" />
+    <Content Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js" />
+    <Content Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js" />
+    <Content Include="wwwroot\lib\bootstrap\dist\js\bootstrap.js" />
+    <Content Include="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include=".vs\Estimator App- Azure resources.slnx\v18\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
+  <ProjectExtensions>
+    <VisualStudio AllowExistingFolder="true" />
+  </ProjectExtensions>
+</Project>

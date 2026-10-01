@@ -23,6 +23,12 @@ namespace Cost_Estimator_App.Models
         [JsonPropertyName("productName")]
         public string ProductName { get; set; } = string.Empty;
 
+        [JsonPropertyName("skuName")]
+        public string SkuName { get; set; } = string.Empty;
+
+        [JsonPropertyName("meterName")]
+        public string MeterName { get; set; } = string.Empty;
+
         [JsonPropertyName("type")]
         public string Type { get; set; } = string.Empty;
 

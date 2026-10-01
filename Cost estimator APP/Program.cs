@@ -11,6 +11,7 @@ builder.Services.AddScoped<Cost_Estimator_App.Services.AzurePricingService>();
 builder.Services.AddHttpClient();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<Cost_Estimator_App.Services.AzurePricingService>();
+builder.Services.AddScoped<Cost_Estimator_App.Services.AzureDiscoveryService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
